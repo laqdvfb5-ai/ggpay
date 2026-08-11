@@ -4,9 +4,13 @@ Ngày: 2026-08-11
 
 ## 1. Bối cảnh và mục tiêu
 
-Dự án đang cân nhắc hai hướng: tự xây hệ thống đọc biến động số dư qua SMS
-(thiết kế ở `autobank-sms-banking.md`), hoặc làm đại lý bán lại SePay và xây
-phần giá trị gia tăng bên trên.
+Dự án ban đầu cân nhắc hai hướng: tự xây hệ thống đọc biến động số dư qua SMS
+hoặc làm đại lý bán lại SePay và xây phần giá trị gia tăng bên trên.
+
+**Kết quả ngày 2026-08-12:** giao dịch ngân hàng thật đã đi qua
+TPBank → SePay → GGPay với webhook HTTP 200; thử nghiệm lặp lại cho thấy độ trễ
+đủ tốt. Giai đoạn hiện tại đã chốt dùng SePay làm upstream và bỏ hoàn toàn việc
+tự xây SMS Banking. `autobank-sms-banking.md` chỉ còn là tài liệu lưu trữ.
 
 Prototype này tồn tại để trả lời bằng dữ liệu thật, không phải phỏng đoán:
 

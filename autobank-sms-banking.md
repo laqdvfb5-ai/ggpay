@@ -1,12 +1,23 @@
-# Autobank qua SMS Banking
+# Autobank qua SMS Banking — Đã hoãn
 
-Phạm vi đã chốt:
+> **Quyết định ngày 2026-08-12:** Không triển khai SMS Banking trong giai đoạn hiện
+> tại. GGPay dùng SePay làm upstream và tập trung vào API/reseller, multi-tenant,
+> webhook delivery và billing. Không xây collector Android, không nuôi SIM, không
+> viết parser SMS. Tài liệu dưới đây chỉ được giữ làm nghiên cứu tham khảo nếu sau
+> này cần giảm phụ thuộc upstream; nó không còn là kế hoạch thực thi.
 
-- **Chỉ SMS Banking.** Không notification listener, không API ngân hàng ở giai đoạn này.
-- **SIM và máy đều của khách.** Bạn không nuôi SIM farm, không đăng ký thuê bao, không
-  dính quy định viễn thông.
-- **Bỏ Vietcombank.** Lý do ở mục cuối.
-- Mục tiêu: một đường đọc biến động số dư, chạy được, đủ tin cậy để bán.
+Phạm vi cũ đã bị thay thế:
+
+- ~~Chỉ SMS Banking.~~
+- ~~SIM và máy đều của khách.~~
+- ~~Bỏ Vietcombank.~~
+- ~~Tự xây đường đọc biến động số dư để bán.~~
+
+Phạm vi đang áp dụng:
+
+- **Upstream duy nhất: SePay.**
+- **GGPay sở hữu hợp đồng API và webhook hạ nguồn.**
+- **Ưu tiên tiếp theo: multi-tenant, API key theo khách, metering và billing.**
 
 ---
 
