@@ -1,12 +1,12 @@
 import { Router } from 'express';
 import { loadConfig } from '../config.js';
 import { pool } from '../db/pool.js';
-import { extractBearer, tokensMatch } from '../receiver/auth.js';
+import { extractAuthToken, tokensMatch } from '../receiver/auth.js';
 
 export function reportRoutes(): Router {
   const router = Router(); const config = loadConfig();
   router.get('/report', async (req,res,next) => {
-    if (!tokensMatch(extractBearer(req.header('authorization')),config.inspectToken)) { res.status(401).json({success:false,message:'Unauthorized'}); return; }
+    if (!tokensMatch(extractAuthToken(req.header('authorization')),config.inspectToken)) { res.status(401).json({success:false,message:'Unauthorized'}); return; }
     try {
       // Cast các aggregate về number Postgres an toàn cho JSON. Pool cố ý parse
       // bigint thành JS BigInt để giữ chính xác số tiền, nhưng JSON.stringify

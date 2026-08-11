@@ -1,8 +1,25 @@
 import { describe, expect, it } from 'vitest';
-import { extractBearer, tokensMatch } from './auth.js';
+import { extractAuthToken, tokensMatch } from './auth.js';
 
-describe('bearer auth', () => {
-  it('trích token', () => expect(extractBearer('bearer abc')).toBe('abc'));
-  it('từ chối định dạng sai', () => expect(extractBearer('Basic abc')).toBeNull());
-  it('so sánh token', () => { expect(tokensMatch('abc', 'abc')).toBe(true); expect(tokensMatch('x', 'abc')).toBe(false); });
+describe('webhook auth', () => {
+  it('trích Bearer token cho API quản trị', () => {
+    expect(extractAuthToken('bearer abc')).toBe('abc');
+  });
+
+  it('trích Apikey token đúng định dạng SePay', () => {
+    expect(extractAuthToken('Apikey sepay-secret')).toBe('sepay-secret');
+  });
+
+  it('không phân biệt hoa thường ở scheme', () => {
+    expect(extractAuthToken('APIKEY sepay-secret')).toBe('sepay-secret');
+  });
+
+  it('từ chối scheme không hỗ trợ', () => {
+    expect(extractAuthToken('Basic abc')).toBeNull();
+  });
+
+  it('so sánh token constant-time', () => {
+    expect(tokensMatch('abc', 'abc')).toBe(true);
+    expect(tokensMatch('x', 'abc')).toBe(false);
+  });
 });
