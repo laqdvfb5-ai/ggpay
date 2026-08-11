@@ -7,7 +7,7 @@ export async function runRetryPass(): Promise<number> {
   running = true;
   try {
     const due = await findDue(20);
-    for (const row of due) await deliver(row.transaction_id, row.url, row.attempt + 1);
+    for (const row of due) await deliver(row.transaction_id,row.tenant_id,row.webhook_id,row.attempt+1,row.event_id);
     return due.length;
   } finally { running = false; }
 }
