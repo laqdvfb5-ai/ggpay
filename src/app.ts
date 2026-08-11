@@ -1,13 +1,14 @@
 import express from 'express';
 import { adminRoutes } from './admin/routes.js';
 import { customerRoutes } from './customer/routes.js';
+import { dashboardRoutes } from './dashboard/routes.js';
 import { receiverRoutes } from './receiver/routes.js';
 import { reportRoutes } from './report/routes.js';
 import { sinkRoutes } from './sink/routes.js';
 
 export function createApp(): express.Express {
   const app = express(); app.set('trust proxy',true);
-  app.use(sinkRoutes()); app.use(express.json({limit:'256kb'})); app.use(adminRoutes()); app.use(customerRoutes()); app.use(receiverRoutes()); app.use(reportRoutes());
+  app.use(sinkRoutes()); app.use(dashboardRoutes()); app.use(express.json({limit:'256kb'})); app.use(adminRoutes()); app.use(customerRoutes()); app.use(receiverRoutes()); app.use(reportRoutes());
   app.get('/health', async (_req,res) => {
     try {
       const { pool } = await import('./db/pool.js');
