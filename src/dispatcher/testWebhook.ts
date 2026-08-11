@@ -1,0 +1,7 @@
+import { randomUUID } from 'node:crypto';
+import { loadConfig } from '../config.js';
+import { pool } from '../db/pool.js';
+import { signPayload } from './hmac.js';
+import { webhookSecret } from '../tenant/store.js';
+
+export async function sendWebhookTest(tenantId:string){const hook=(await pool.query('select * from tenant_webhooks where tenant_id=$1 and active',[tenantId])).rows[0];if(!hook)throw new Error('Tenant chưa cấu hình webhook');const config=loadConfig();if(!config.webhookEncryptionKey)throw new Error('Chưa cấu hình WEBHOOK_ENCRYPTION_KEY');const eventId=randomUUID(),timestamp=String(Math.floor(Date.now()/1000)),body=JSON.stringify({event_id:eventId,event_type:'webhook.test',tenant_id:tenantId,created_at:new Date().toISOString()}),signature=signPayload(body,timestamp,webhookSecret(hook.secret_encrypted,config.webhookEncryptionKey));let status:number|null=null,error:string|null=null,success=false;try{const response=await fetch(hook.url,{method:'POST',headers:{'Content-Type':'application/json','X-GGPay-Event-Id':eventId,'X-GGPay-Timestamp':timestamp,'X-GGPay-Signature':`sha256=${signature}`},body,redirect:'manual',signal:AbortSignal.timeout(10000)});status=response.status;success=response.ok;if(!success)error=`HTTP ${status}`;}catch(e){error=String(e);}await pool.query('insert into webhook_tests(tenant_id,webhook_id,status_code,error,success) values($1,$2,$3,$4,$5)',[tenantId,hook.id,status,error,success]);return{eventId,status,error,success};}

@@ -1,5 +1,6 @@
 import { Router,urlencoded } from 'express';
 import { loadConfig } from '../config.js';
+import { sendWebhookTest } from '../dispatcher/testWebhook.js';
 import { tokensMatch } from '../receiver/auth.js';
 import { addBankAccount,createTenant,issueApiKey,listTenantSummaries,revokeApiKey,tenantDashboard,upsertWebhook } from '../tenant/store.js';
 import { clearSession,createSession,parseSession,requireAdmin,requireCsrf,setSession } from './session.js';
@@ -18,6 +19,7 @@ export function dashboardRoutes():Router{
  r.post('/admin/tenants/:id/bank-accounts',form,requireCsrf,async(req,res,next)=>{try{await addBankAccount(String(req.params.id),{account_number:String(req.body.account_number),bank_code:String(req.body.bank_code||''),label:String(req.body.label||'')});res.redirect(`/admin/tenants/${String(req.params.id)}`);}catch(e){next(e);}});
  r.post('/admin/tenants/:id/api-keys',form,requireCsrf,async(req,res,next)=>{try{const key=await issueApiKey(String(req.params.id),String(req.body.name));oneTime.set(String(req.params.id),{title:'API key',value:key.key,expires:Date.now()+120000});res.redirect(`/admin/tenants/${String(req.params.id)}`);}catch(e){next(e);}});
  r.post('/admin/api-keys/:id/revoke',form,requireCsrf,async(req,res,next)=>{try{await revokeApiKey(String(req.params.id));res.redirect(req.header('referer')??'/admin');}catch(e){next(e);}});
- r.post('/admin/tenants/:id/webhook',form,requireCsrf,async(req,res,next)=>{try{if(!config.webhookEncryptionKey)throw new Error('Chưa cấu hình WEBHOOK_ENCRYPTION_KEY');const hook=await upsertWebhook(String(req.params.id),String(req.body.url),req.body.secret?String(req.body.secret):undefined,config.webhookEncryptionKey);oneTime.set(String(req.params.id),{title:'Webhook secret',value:hook.secret,expires:Date.now()+120000});res.redirect(`/admin/tenants/${String(req.params.id)}`);}catch(e){next(e);}});
+ r.post('/admin/tenants/:id/webhook',form,requireCsrf,async(req,res,next)=>{try{if(!config.webhookEncryptionKey)throw new Error('Chưa cấu hình WEBHOOK_ENCRYPTION_KEY');const id=String(req.params.id),hook=await upsertWebhook(id,String(req.body.url),req.body.secret?String(req.body.secret):undefined,config.webhookEncryptionKey);oneTime.set(id,{title:'Webhook secret',value:hook.secret,expires:Date.now()+120000});res.redirect(`/admin/tenants/${id}`);}catch(e){next(e);}});
+ r.post('/admin/tenants/:id/webhook/test',form,requireCsrf,async(req,res,next)=>{try{const id=String(req.params.id),result=await sendWebhookTest(id);oneTime.set(id,{title:result.success?'Webhook test thành công':'Webhook test thất bại',value:result.success?`HTTP ${result.status} · event ${result.eventId}`:result.error??'Unknown error',expires:Date.now()+120000});res.redirect(`/admin/tenants/${id}`);}catch(e){next(e);}});
  return r;
 }
