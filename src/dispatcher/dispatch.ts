@@ -11,7 +11,7 @@ async function buildPayload(transactionId: string): Promise<string> {
     event_id:t.id, source:t.source, channel:t.channel, bank_code:t.bank_code, account_number:t.account_number,
     sub_account:t.sub_account, direction:t.direction, amount:t.amount.toString(), balance_after:t.balance_after?.toString() ?? null,
     content:t.content, payment_code:t.payment_code, reference_code:t.reference_code,
-    occurred_at:t.occurred_at.toISOString(), received_at:t.received_at.toISOString(), latency_ms:t.latency_ms,
+    occurred_at:t.occurred_at.toISOString(), received_at:t.received_at.toISOString(), latency_ms:Number(t.latency_ms),
   });
 }
 export async function deliver(transactionId: string, urlOverride?: string, attempt = 1): Promise<void> {
