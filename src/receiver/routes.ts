@@ -24,7 +24,7 @@ export function receiverRoutes(): Router {
       const txId = await insertTransaction(tx,raw.id,raw.receivedAt);
       await markRawEvent(raw.id,'normalized',null);
       res.json({success:true});
-      if (txId) void deliver(txId).catch((error) => console.error('dispatcher lỗi:',error));
+      if (txId?.tenantId && txId.webhookId) void deliver(txId.id,txId.tenantId,txId.webhookId).catch((error) => console.error('dispatcher lỗi:',error));
     } catch (error) {
       const message = error instanceof Error ? error.message : String(error);
       await markRawEvent(raw.id,'normalize_failed',message);

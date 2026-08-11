@@ -7,6 +7,7 @@ export interface Config {
   inspectToken: string;
   outboundUrl: string;
   outboundSecret: string;
+  webhookEncryptionKey: string;
 }
 
 type Env = Record<string, string | undefined>;
@@ -28,5 +29,6 @@ export function loadConfig(env: Env = process.env): Config {
     inspectToken: required(env, 'INSPECT_TOKEN'),
     outboundUrl: env.OUTBOUND_WEBHOOK_URL ?? '',
     outboundSecret: env.OUTBOUND_WEBHOOK_SECRET ?? '',
+    webhookEncryptionKey: env.WEBHOOK_ENCRYPTION_KEY ?? '',
   };
 }
