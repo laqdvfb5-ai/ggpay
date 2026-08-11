@@ -1,0 +1,40 @@
+name: CI
+
+on:
+  push:
+    branches: [master, feature/sepay-webhook-receiver]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: ezpay_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d ezpay_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgres://postgres:postgres@localhost:5432/ezpay_test
+      DATABASE_URL_TEST: postgres://postgres:postgres@localhost:5432/ezpay_test
+      SEPAY_WEBHOOK_TOKEN: ci-sepay-token
+      INSPECT_TOKEN: ci-inspect-token
+      OUTBOUND_WEBHOOK_SECRET: ci-outbound-secret
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+      - run: npm ci
+      - run: npm test
+      - run: npm run build
