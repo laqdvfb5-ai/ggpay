@@ -1,7 +1,9 @@
 import { createHash, timingSafeEqual } from 'node:crypto';
 
-export function extractBearer(header: string | undefined): string | null {
-  const match = header ? /^Bearer\s+(.+)$/i.exec(header.trim()) : null;
+export function extractAuthToken(header: string | undefined): string | null {
+  // SePay dùng `Authorization: Apikey <token>`. API quản trị của mình vẫn
+  // chấp nhận Bearer để curl và integrator dùng chuẩn HTTP quen thuộc.
+  const match = header ? /^(?:Bearer|Apikey)\s+(.+)$/i.exec(header.trim()) : null;
   return match?.[1] ?? null;
 }
 
