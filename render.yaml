@@ -18,7 +18,7 @@ services:
       - key: OUTBOUND_WEBHOOK_URL
         sync: false
       - key: WEBHOOK_ENCRYPTION_KEY
-        sync: false
+        generateValue: true
 databases:
   - name: ezpay-db
     plan: free
