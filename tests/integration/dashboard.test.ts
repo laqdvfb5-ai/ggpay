@@ -5,7 +5,7 @@ import { pool } from '../../src/db/pool.js';
 import { runMigrations } from '../../src/db/migrate.js';
 const hasDb=Boolean(process.env.DATABASE_URL_TEST),app=hasDb?createApp():null;
 describe.skipIf(!hasDb)('admin dashboard',()=>{
- beforeAll(async()=>runMigrations());beforeEach(async()=>pool.query('truncate usage_events,deliveries,transactions,raw_events,tenant_webhooks,bank_accounts,tenant_api_keys,tenants cascade'));afterAll(async()=>pool.end());
+ beforeAll(async()=>runMigrations());beforeEach(async()=>pool.query('truncate sepay_oauth_states,sepay_connections,tenant_login_tokens,tenant_memberships,tenant_users,usage_events,deliveries,transactions,raw_events,tenant_webhooks,bank_accounts,tenant_api_keys,tenants cascade'));afterAll(async()=>pool.end());
  async function login(){const r=await request(app!).post('/admin/login').type('form').send({token:process.env.INSPECT_TOKEN});return r.headers['set-cookie'][0] as string;}
  function csrf(cookie:string){return request(app!).get('/admin').set('Cookie',cookie).then(r=>/name="_csrf" value="([^"]+)"/.exec(r.text)![1]);}
  it('bắt đăng nhập và set cookie bảo mật',async()=>{expect((await request(app!).get('/admin')).status).toBe(302);const cookie=await login();expect(cookie).toContain('HttpOnly');expect(cookie).toContain('Secure');expect(cookie).toContain('SameSite=Strict');});
