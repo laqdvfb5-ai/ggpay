@@ -2,7 +2,8 @@ import { Router,urlencoded } from 'express';
 import { loadConfig } from '../config.js';
 import { sendWebhookTest } from '../dispatcher/testWebhook.js';
 import { tokensMatch } from '../receiver/auth.js';
-import { addBankAccount,createTenant,issueApiKey,listTenantSummaries,revokeApiKey,tenantDashboard,upsertWebhook } from '../tenant/store.js';
+import { inviteOwner } from '../portal/store.js';
+import { createTenant,issueApiKey,listTenantSummaries,revokeApiKey,tenantDashboard,upsertWebhook } from '../tenant/store.js';
 import { clearSession,createSession,parseSession,requireAdmin,requireCsrf,setSession } from './session.js';
 import { layout,login,tenantPage,tenantsPage } from './views.js';
 
@@ -16,7 +17,7 @@ export function dashboardRoutes():Router{
  r.get('/admin',async(_req,res,next)=>{try{res.send(tenantsPage(await listTenantSummaries(),res.locals.session.csrf));}catch(e){next(e);}});
  r.post('/admin/tenants',form,requireCsrf,async(req,res,next)=>{try{const t=await createTenant(String(req.body.name),String(req.body.slug));res.redirect(`/admin/tenants/${t.id}`);}catch(e){next(e);}});
  r.get('/admin/tenants/:id',async(req,res,next)=>{try{const id=String(String(req.params.id));const data=await tenantDashboard(id);if(!data){res.status(404).send(layout('Không tìm thấy','<h1>Không tìm thấy tenant</h1>'));return;}const flash=oneTime.get(id);if(flash){oneTime.delete(id);if(flash.expires<Date.now())res.send(tenantPage(data,res.locals.session.csrf));else res.send(tenantPage(data,res.locals.session.csrf,flash));}else res.send(tenantPage(data,res.locals.session.csrf));}catch(e){next(e);}});
- r.post('/admin/tenants/:id/bank-accounts',form,requireCsrf,async(req,res,next)=>{try{await addBankAccount(String(req.params.id),{account_number:String(req.body.account_number),bank_code:String(req.body.bank_code||''),label:String(req.body.label||'')});res.redirect(`/admin/tenants/${String(req.params.id)}`);}catch(e){next(e);}});
+ r.post('/admin/tenants/:id/invites',form,requireCsrf,async(req,res,next)=>{try{const id=String(req.params.id),invite=await inviteOwner(id,String(req.body.email));oneTime.set(id,{title:`Link mời cho ${invite.email}`,value:`${config.publicBaseUrl||`${req.protocol}://${req.get('host')}`}/portal/auth?token=${invite.token}`,expires:Date.now()+120000});res.redirect(`/admin/tenants/${id}`);}catch(e){next(e);}});
  r.post('/admin/tenants/:id/api-keys',form,requireCsrf,async(req,res,next)=>{try{const key=await issueApiKey(String(req.params.id),String(req.body.name));oneTime.set(String(req.params.id),{title:'API key',value:key.key,expires:Date.now()+120000});res.redirect(`/admin/tenants/${String(req.params.id)}`);}catch(e){next(e);}});
  r.post('/admin/api-keys/:id/revoke',form,requireCsrf,async(req,res,next)=>{try{await revokeApiKey(String(req.params.id));res.redirect(req.header('referer')??'/admin');}catch(e){next(e);}});
  r.post('/admin/tenants/:id/webhook',form,requireCsrf,async(req,res,next)=>{try{if(!config.webhookEncryptionKey)throw new Error('Chưa cấu hình WEBHOOK_ENCRYPTION_KEY');const id=String(req.params.id),hook=await upsertWebhook(id,String(req.body.url),req.body.secret?String(req.body.secret):undefined,config.webhookEncryptionKey);oneTime.set(id,{title:'Webhook secret',value:hook.secret,expires:Date.now()+120000});res.redirect(`/admin/tenants/${id}`);}catch(e){next(e);}});

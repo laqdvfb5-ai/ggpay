@@ -20,6 +20,14 @@ services:
         sync: false
       - key: WEBHOOK_ENCRYPTION_KEY
         generateValue: true
+      - key: PUBLIC_BASE_URL
+        value: https://ezpay-receiver.onrender.com
+      - key: SEPAY_OAUTH_CLIENT_ID
+        sync: false
+      - key: SEPAY_OAUTH_CLIENT_SECRET
+        sync: false
+      - key: SEPAY_OAUTH_REDIRECT_URI
+        value: https://ezpay-receiver.onrender.com/portal/sepay/callback
 databases:
   - name: ezpay-db
     plan: free

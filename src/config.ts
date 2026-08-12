@@ -8,6 +8,10 @@ export interface Config {
   outboundUrl: string;
   outboundSecret: string;
   webhookEncryptionKey: string;
+  sepayOauthClientId: string;
+  sepayOauthClientSecret: string;
+  sepayOauthRedirectUri: string;
+  publicBaseUrl: string;
 }
 
 type Env = Record<string, string | undefined>;
@@ -30,5 +34,9 @@ export function loadConfig(env: Env = process.env): Config {
     outboundUrl: env.OUTBOUND_WEBHOOK_URL ?? '',
     outboundSecret: env.OUTBOUND_WEBHOOK_SECRET ?? '',
     webhookEncryptionKey: env.WEBHOOK_ENCRYPTION_KEY ?? '',
+    sepayOauthClientId: env.SEPAY_OAUTH_CLIENT_ID ?? '',
+    sepayOauthClientSecret: env.SEPAY_OAUTH_CLIENT_SECRET ?? '',
+    sepayOauthRedirectUri: env.SEPAY_OAUTH_REDIRECT_URI ?? '',
+    publicBaseUrl: (env.PUBLIC_BASE_URL ?? '').replace(/\/$/, ''),
   };
 }

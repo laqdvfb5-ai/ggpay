@@ -10,7 +10,7 @@ import { sepayApiPayload } from '../fixtures/sepayPayloads.js';
 const hasDb=Boolean(process.env.DATABASE_URL_TEST),app=hasDb?createApp():null;
 describe.skipIf(!hasDb)('multi-tenant routing',()=>{
  beforeAll(async()=>runMigrations());
- beforeEach(async()=>{await pool.query('truncate usage_events,deliveries,transactions,raw_events,tenant_webhooks,bank_accounts,tenant_api_keys,tenants cascade');});
+ beforeEach(async()=>{await pool.query('truncate sepay_oauth_states,sepay_connections,tenant_login_tokens,tenant_memberships,tenant_users,usage_events,deliveries,transactions,raw_events,tenant_webhooks,bank_accounts,tenant_api_keys,tenants cascade');});
  afterAll(async()=>pool.end());
  it('route đúng account, meter một lần, cô lập customer API',async()=>{
   const a=await createTenant('Tenant A','tenant-a'),b=await createTenant('Tenant B','tenant-b');
